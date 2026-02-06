@@ -7,7 +7,7 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   // 初始状态
   stocks: {},
   gold: null,
-  crypto: null,
+  crypto: {},
   exchangeRate: null,
   lastUpdate: 0,
 
@@ -24,9 +24,9 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
       lastUpdate: Date.now()
     })),
 
-  updateCrypto: (data: CryptoData) =>
+  updateCrypto: (symbol: string, data: CryptoData) =>
     set(() => ({
-      crypto: data,
+      crypto: { ...useDashboardStore.getState().crypto, [symbol]: data },
       lastUpdate: Date.now()
     })),
 

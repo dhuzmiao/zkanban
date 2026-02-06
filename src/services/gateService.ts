@@ -50,12 +50,14 @@ function parseGateTickerData(symbol: string, data: any): CryptoData | null {
     // 映射交易对到显示名称
     const nameMap: Record<string, string> = {
       'btc_usdt': '比特币',
-      'eth_usdt': '以太坊'
+      'eth_usdt': '以太坊',
+      'sol_usdt': 'Solana'
     };
 
     const symbolMap: Record<string, string> = {
       'btc_usdt': 'BTC',
-      'eth_usdt': 'ETH'
+      'eth_usdt': 'ETH',
+      'sol_usdt': 'SOL'
     };
 
     return {

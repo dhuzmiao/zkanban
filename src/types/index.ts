@@ -40,7 +40,7 @@ export interface ExchangeRateData extends MarketData {
 export interface DashboardState {
   stocks: Record<string, StockData>;
   gold: GoldData | null;
-  crypto: CryptoData | null;
+  crypto: Record<string, CryptoData>;
   exchangeRate: ExchangeRateData | null;
   lastUpdate: number;
 }

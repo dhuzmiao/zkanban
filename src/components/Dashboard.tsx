@@ -5,25 +5,75 @@ import { GoldCard } from './GoldCard';
 import { CryptoCard } from './CryptoCard';
 import { ExchangeRateCard } from './ExchangeRateCard';
 import { FlipClock } from './ui/FlipClock';
+import { PriceFlash } from './ui/PriceFlash';
 import { useState, useEffect } from 'react';
+import { StockData } from '@/types';
+import { formatPrice, formatPercent, getColorClass } from '@/utils/formatters';
+import { usePriceChange } from '@/hooks/usePriceChange';
 
 interface SectionProps {
   title: string;
   icon: string;
   borderColor: string;
   children: React.ReactNode;
+  indices?: StockData[];
+}
+
+/**
+ * 股指横向展示条 - 单行紧凑格式
+ * 格式: 上证 3245.67 +1.23% | 深证 10234.56 -0.45% | ...
+ */
+function IndexTicker({ indices }: { indices: StockData[] }) {
+  // 按固定顺序排序
+  const sortedIndices = [...indices].sort((a, b) => {
+    const order: Record<string, number> = {
+      'sh000001': 1,
+      'sz399001': 2,
+      'sz399006': 3
+    };
+    return (order[a.symbol] || 99) - (order[b.symbol] || 99);
+  });
+
+  return (
+    <div className="hidden md:flex items-center space-x-3 text-sm">
+      {sortedIndices.map((index, i) => {
+        const colorClass = getColorClass(index.change);
+        const priceChange = usePriceChange(index.price);
+
+        return (
+          <PriceFlash key={index.symbol} changeDirection={priceChange} className="rounded px-1.5 py-0.5 -mx-1.5">
+            <div className="flex items-center space-x-1.5">
+              {i > 0 && <span className="text-gray-500">|</span>}
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
+                {index.name}
+              </span>
+              <span className={`font-mono font-semibold ${colorClass} animate-digit-scroll`}>
+                {formatPrice(index.price)}
+              </span>
+              <span className={`font-mono text-xs ${colorClass}`}>
+                {formatPercent(index.changePercent)}
+              </span>
+            </div>
+          </PriceFlash>
+        );
+      })}
+    </div>
+  );
 }
 
 /**
  * 分区容器组件 - 霓虹边框效果
  */
-function Section({ title, icon, borderColor, children }: SectionProps) {
+function Section({ title, icon, borderColor, children, indices }: SectionProps) {
   return (
     <section className="mb-10">
       {/* 分区标题 - 霓虹边框 */}
-      <div className={`flex items-center space-x-3 mb-4 pl-4 ${borderColor}`}>
-        <span className="text-2xl">{icon}</span>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h2>
+      <div className={`flex items-center justify-between mb-4 pl-4 pr-4 ${borderColor}`}>
+        <div className="flex items-center space-x-3">
+          <span className="text-2xl">{icon}</span>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h2>
+        </div>
+        {indices && indices.length > 0 && <IndexTicker indices={indices} />}
       </div>
 
       {/* 分区内容 - 玻璃态背景 */}
@@ -57,6 +107,12 @@ export function Dashboard() {
   }, []);
 
   const stockList = Object.values(stocks);
+  const cryptoList = Object.values(crypto);
+
+  // 分离指数和个股
+  const indexSymbols = ['sh000001', 'sz399001', 'sz399006'];
+  const indices = stockList.filter(stock => indexSymbols.includes(stock.symbol));
+  const individualStocks = stockList.filter(stock => !indexSymbols.includes(stock.symbol));
 
   return (
     <div className="min-h-screen bg-deep-space bg-grid-pattern p-6">
@@ -82,14 +138,16 @@ export function Dashboard() {
         {/* 卡片网格 - 分类显示 */}
         <div>
           {/* 股票分区 */}
-          {stockList.length > 0 && (
+          {(indices.length > 0 || individualStocks.length > 0) && (
             <Section
               title="股票市场"
               icon="📈"
               borderColor="neon-border-purple"
+              indices={indices}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {stockList.map((stock) => (
+                {/* 个股卡片 */}
+                {individualStocks.map((stock) => (
                   <StockCard key={stock.symbol} data={stock} />
                 ))}
               </div>
@@ -110,14 +168,16 @@ export function Dashboard() {
           )}
 
           {/* 数字货币分区 */}
-          {crypto && (
+          {cryptoList.length > 0 && (
             <Section
               title="数字资产"
               icon="₿"
               borderColor="neon-border-cyan"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <CryptoCard data={crypto} />
+                {cryptoList.map((data) => (
+                  <CryptoCard key={data.symbol} data={data} />
+                ))}
               </div>
             </Section>
           )}
@@ -137,7 +197,7 @@ export function Dashboard() {
         </div>
 
         {/* 空状态 */}
-        {stockList.length === 0 && !gold && !crypto && !exchangeRate && (
+        {stockList.length === 0 && !gold && cryptoList.length === 0 && !exchangeRate && (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-neon-green"></div>
             <p className="mt-6 text-gray-600 dark:text-gray-400">正在加载数据...</p>

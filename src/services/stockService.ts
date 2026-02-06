@@ -5,6 +5,8 @@ import { StockData } from '@/types';
  */
 const STOCK_SYMBOLS = {
   sh000001: '上证指数',
+  sz399001: '深证成指',
+  sz399006: '创业板指',
   sh601318: '中国平安',
   sh512000: '券商ETF'
 };
