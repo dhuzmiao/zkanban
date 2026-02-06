@@ -22,6 +22,17 @@ export default defineConfig({
           })
         }
       },
+      // 新浪财经API代理（白银数据）
+      '/api/hq': {
+        target: 'https://hq.sinajs.cn',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/hq/, ''),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+          })
+        }
+      },
       // Gate.io API 代理
       '/api/gate': {
         target: 'https://data.gateapi.io',
@@ -41,6 +52,18 @@ export default defineConfig({
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+          })
+        }
+      },
+      // 金投网 API 代理（黄金、白银实时行情）
+      '/api/jijinhao': {
+        target: 'https://api.jijinhao.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/jijinhao/, ''),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            proxyReq.setHeader('Referer', 'https://www.cngold.org/')
           })
         }
       }

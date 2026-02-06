@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { DashboardState, DashboardActions, StockData, GoldData, CryptoData, ExchangeRateData } from '@/types';
+import { DashboardState, DashboardActions, StockData, GoldData, SilverData, CryptoData, ExchangeRateData } from '@/types';
 
 type DashboardStore = DashboardState & DashboardActions;
 
@@ -7,6 +7,7 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   // 初始状态
   stocks: {},
   gold: null,
+  silver: null,
   crypto: {},
   exchangeRate: null,
   lastUpdate: 0,
@@ -21,6 +22,12 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   updateGold: (data: GoldData) =>
     set(() => ({
       gold: data,
+      lastUpdate: Date.now()
+    })),
+
+  updateSilver: (data: SilverData) =>
+    set(() => ({
+      silver: data,
       lastUpdate: Date.now()
     })),
 

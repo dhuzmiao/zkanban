@@ -1,7 +1,8 @@
 import { useDashboardStore } from '@/store/useDashboardStore';
-import { useStockData, useGoldData, useCryptoData, useExchangeRateData } from '@/hooks';
+import { useStockData, useGoldData, useSilverData, useCryptoData, useExchangeRateData } from '@/hooks';
 import { StockCard } from './StockCard';
 import { GoldCard } from './GoldCard';
+import { SilverCard } from './SilverCard';
 import { CryptoCard } from './CryptoCard';
 import { ExchangeRateCard } from './ExchangeRateCard';
 import { FlipClock } from './ui/FlipClock';
@@ -91,10 +92,11 @@ export function Dashboard() {
   // 启动数据获取
   useStockData();
   useGoldData();
+  useSilverData();
   useCryptoData();
   useExchangeRateData();
 
-  const { stocks, gold, crypto, exchangeRate } = useDashboardStore();
+  const { stocks, gold, silver, crypto, exchangeRate } = useDashboardStore();
 
   // 当前时间（北京时区 UTC+8），每秒更新
   const [currentTime, setCurrentTime] = useState(() => Date.now());
@@ -155,14 +157,15 @@ export function Dashboard() {
           )}
 
           {/* 黄金分区 */}
-          {gold && (
+          {(gold || silver) && (
             <Section
               title="贵金属"
               icon="🪙"
               borderColor="neon-border-gold"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <GoldCard data={gold} />
+                {gold && <GoldCard data={gold} />}
+                {silver && <SilverCard data={silver} />}
               </div>
             </Section>
           )}
@@ -197,7 +200,7 @@ export function Dashboard() {
         </div>
 
         {/* 空状态 */}
-        {stockList.length === 0 && !gold && cryptoList.length === 0 && !exchangeRate && (
+        {stockList.length === 0 && !gold && !silver && cryptoList.length === 0 && !exchangeRate && (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-neon-green"></div>
             <p className="mt-6 text-gray-600 dark:text-gray-400">正在加载数据...</p>

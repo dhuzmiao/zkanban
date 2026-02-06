@@ -30,16 +30,25 @@ export function checkIfCryptoTrading(): boolean {
 }
 
 /**
- * 检查黄金是否在交易时间
- * 简化处理：主要交易时段返回true
+ * 检查黄金/白银是否在交易时间
+ * 现货黄金和现货白银是全球24小时交易的
+ *
+ * 交易市场：
+ * - 纽约商品交易所 (COMEX): 全球最大黄金期货市场
+ * - 伦敦金银市场 (LBMA): 现货交易中心
+ * - 上海黄金交易所: 国内现货黄金
+ * - 东京工业品交易所 (TOCOM): 亚洲主要市场
+ *
+ * 交易时间：周一至周五，24小时连续交易
  */
 export function checkIfGoldTrading(): boolean {
-  const now = new Date();
-  const hour = now.getHours();
+  return true;
+}
 
-  // 国际黄金市场主要交易时段
-  // 纽约市场: 8:20-17:00 EST (约北京时间20:20-次日5:00)
-  // 伦敦市场: 8:00-17:00 GMT (约北京时间16:00-次日1:00)
-  // 简化：主要交易时段返回true
-  return hour >= 8 || hour <= 5;
+/**
+ * 检查白银是否在交易时间（与黄金相同）
+ * 现货白银同样是24小时全球交易
+ */
+export function checkIfSilverTrading(): boolean {
+  return true;
 }

@@ -12,7 +12,7 @@ const EXCHANGE_RATE_URL = '/api/exchangerate/v6/latest/USD';
  */
 let cachedData: ExchangeRateData | null = null;
 let lastFetch: number = 0;
-const CACHE_DURATION = 3600000; // 1小时缓存（汇率变化较慢）
+const CACHE_DURATION = 500; // 0.5秒缓存（高频更新）
 
 /**
  * ExchangeRate-API 响应接口
