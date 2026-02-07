@@ -97,8 +97,7 @@ function parseTencentUSData(
     const price = parseFloat(parts[3]);      // 当前价（索引3）
     const prevClose = parseFloat(parts[4]);  // 昨收（索引4）
     const open = parseFloat(parts[5]);       // 今开（索引5）
-    const high = parseFloat(parts[6]);       // 最高（索引6）
-    const low = parseFloat(parts[7]);        // 最低（索引7）
+    // high/low 数据暂未使用，按需扩展
 
     if (isNaN(price) || isNaN(prevClose) || prevClose === 0) return null;
 
