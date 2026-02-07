@@ -8,9 +8,9 @@ import { StockData } from '@/types';
 
 // 美股指数配置
 const US_INDICES = {
-  us_dji: '道琼斯工业平均指数',
-  us_ixic: '纳斯达克综合指数',
-  us_spx: '标普500指数'
+  us_dji: '道琼斯',
+  us_ixic: '纳斯达克',
+  us_spx: '标普500'
 } as const;
 
 // 美股个股配置
