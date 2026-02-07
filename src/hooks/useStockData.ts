@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useDashboardStore } from '@/store/useDashboardStore';
-import { fetchStockData } from '@/services/stockService';
+import { fetchStockData, fetchUSIndicesData } from '@/services/stockService';
 
 const STOCK_POLL_INTERVAL = 3000; // 3秒轮询
 
@@ -14,8 +14,15 @@ export function useStockData() {
   useEffect(() => {
     // 立即获取一次数据
     const fetchData = async () => {
+      // 获取中国股票数据
       const stocks = await fetchStockData();
       Object.entries(stocks).forEach(([symbol, data]) => {
+        updateStock(symbol, data);
+      });
+
+      // 获取美股指数数据
+      const usIndicesData = await fetchUSIndicesData();
+      Object.entries(usIndicesData).forEach(([symbol, data]) => {
         updateStock(symbol, data);
       });
     };

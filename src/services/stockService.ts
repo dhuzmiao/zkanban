@@ -129,3 +129,6 @@ export async function fetchStockData(): Promise<Record<string, StockData>> {
     return {};
   }
 }
+
+// 导出美股指数数据
+export { fetchUSIndicesData } from './usIndicesService';

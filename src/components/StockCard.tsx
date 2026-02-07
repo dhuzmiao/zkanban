@@ -3,20 +3,36 @@ import { formatPrice, formatPercent, getColorClass } from '@/utils/formatters';
 import { TradingStatus } from './ui/TradingStatus';
 import { PriceFlash } from './ui/PriceFlash';
 import { usePriceChange } from '@/hooks/usePriceChange';
-import { checkIfStockTrading } from '@/utils/tradingHours';
+import { checkIfStockTrading, checkIfUSMarketTrading } from '@/utils/tradingHours';
 
 interface StockCardProps {
   data: StockData;
 }
 
 /**
+ * 美股符号前缀（指数+个股）
+ */
+const US_SYMBOL_PREFIXES = ['us_dji', 'us_ixic', 'us_spx', 'us_nvda', 'us_googl', 'us_aapl', 'us_tsla'];
+
+/**
+ * 判断是否为美股
+ */
+function isUSStock(symbol: string): boolean {
+  return US_SYMBOL_PREFIXES.some(prefix => symbol.startsWith(prefix));
+}
+
+/**
  * 股票卡片组件 - 暗色赛博金融终端风格
  */
 export function StockCard({ data }: StockCardProps) {
-  const { name, price, change, changePercent, open, prevClose, turnoverRate } = data;
+  const { name, price, change, changePercent } = data;
   const colorClass = getColorClass(change);
   const priceChange = usePriceChange(price);
-  const isTrading = checkIfStockTrading();
+
+  // 根据symbol判断使用哪个交易时间检查函数
+  const isTrading = isUSStock(data.symbol)
+    ? checkIfUSMarketTrading()
+    : checkIfStockTrading();
 
   return (
     <div className="relative glass-card rounded-lg overflow-hidden group hover:border-white/20 transition-all duration-200">
@@ -37,39 +53,21 @@ export function StockCard({ data }: StockCardProps) {
             </div>
           </div>
 
-          {/* 涨跌信息 */}
-          <div className="flex items-center space-x-3 mb-4">
-            <span className={`text-lg font-medium ${colorClass}`}>
-              {formatPercent(changePercent)}
-            </span>
-            <span className={`text-sm ${colorClass} font-mono`}>
-              {change >= 0 ? '+' : ''}{formatPrice(change, 3)}
-            </span>
-          </div>
-
-          {/* 已收盘标签 - 移到价格下方，不被覆盖 */}
-          {!isTrading && (
-            <div className="mb-2">
-              <span className="px-2 py-1 text-xs bg-status-stopped/20 text-status-stopped rounded">
-                已收盘
+          {/* 涨跌信息 + 已收盘状态 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <span className={`text-lg font-medium ${colorClass}`}>
+                {formatPercent(changePercent)}
+              </span>
+              <span className={`text-sm ${colorClass} font-mono`}>
+                {change >= 0 ? '+' : ''}{formatPrice(change, 3)}
               </span>
             </div>
-          )}
-
-          {/* 详细信息 */}
-          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs text-gray-600 dark:text-gray-400 border-t border-black/5 dark:border-white/5 pt-3">
-            <div>
-              <span className="text-gray-600 dark:text-gray-500">开盘:</span>{' '}
-              <span className="text-gray-700 dark:text-gray-300 font-mono">{formatPrice(open)}</span>
-            </div>
-            <div>
-              <span className="text-gray-600 dark:text-gray-500">昨收:</span>{' '}
-              <span className="text-gray-700 dark:text-gray-300 font-mono">{formatPrice(prevClose)}</span>
-            </div>
-            <div className="col-span-2">
-              <span className="text-gray-600 dark:text-gray-500">换手率:</span>{' '}
-              <span className="text-gray-700 dark:text-gray-300 font-mono">{turnoverRate.toFixed(2)}%</span>
-            </div>
+            {!isTrading && (
+              <span className="px-2 py-0.5 text-xs bg-status-stopped/20 text-status-stopped rounded">
+                已收盘
+              </span>
+            )}
           </div>
         </div>
       </PriceFlash>

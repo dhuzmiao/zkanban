@@ -22,17 +22,20 @@ interface SectionProps {
 
 /**
  * 股指横向展示条 - 单行紧凑格式
- * 格式: 上证 3245.67 +1.23% | 深证 10234.56 -0.45% | ...
+ * 格式: 上证 3245.67 +1.23% | 深证 10234.56 -0.45% | 道琼斯 50000 +2% | ...
  */
 function IndexTicker({ indices }: { indices: StockData[] }) {
-  // 按固定顺序排序
+  // 按固定顺序排序 - 中国指数 + 美股指数
   const sortedIndices = [...indices].sort((a, b) => {
     const order: Record<string, number> = {
       'sh000001': 1,
       'sz399001': 2,
-      'sz399006': 3
+      'sz399006': 3,
+      'us_dji': 10,
+      'us_ixic': 11,
+      'us_spx': 12
     };
-    return (order[a.symbol] || 99) - (order[b.symbol] || 99);
+    return (order[a.symbol] || 999) - (order[b.symbol] || 999);
   });
 
   return (
@@ -111,10 +114,19 @@ export function Dashboard() {
   const stockList = Object.values(stocks);
   const cryptoList = Object.values(crypto);
 
-  // 分离指数和个股
-  const indexSymbols = ['sh000001', 'sz399001', 'sz399006'];
-  const indices = stockList.filter(stock => indexSymbols.includes(stock.symbol));
-  const individualStocks = stockList.filter(stock => !indexSymbols.includes(stock.symbol));
+  // 分离中国指数、美股指数和个股
+  const cnIndexSymbols = ['sh000001', 'sz399001', 'sz399006'];
+  const usIndexSymbols = ['us_dji', 'us_ixic', 'us_spx'];
+  const usStockSymbols = ['us_nvda', 'us_googl', 'us_aapl', 'us_tsla'];
+
+  const cnIndices = stockList.filter(stock => cnIndexSymbols.includes(stock.symbol));
+  const usIndices = stockList.filter(stock => usIndexSymbols.includes(stock.symbol));
+  const usStocks = stockList.filter(stock => usStockSymbols.includes(stock.symbol));
+  const cnStocks = stockList.filter(
+    stock => !cnIndexSymbols.includes(stock.symbol) &&
+              !usIndexSymbols.includes(stock.symbol) &&
+              !usStockSymbols.includes(stock.symbol)
+  );
 
   return (
     <div className="min-h-screen bg-deep-space bg-grid-pattern p-6">
@@ -139,17 +151,33 @@ export function Dashboard() {
 
         {/* 卡片网格 - 分类显示 */}
         <div>
-          {/* 股票分区 */}
-          {(indices.length > 0 || individualStocks.length > 0) && (
+          {/* 中国市场分区 - 只显示中国指数 */}
+          {(cnIndices.length > 0 || cnStocks.length > 0) && (
             <Section
-              title="股票市场"
-              icon="📈"
+              title="中国市场"
+              icon="🇨🇳"
               borderColor="neon-border-purple"
-              indices={indices}
+              indices={cnIndices}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {/* 个股卡片 */}
-                {individualStocks.map((stock) => (
+                {/* 中国个股卡片 */}
+                {cnStocks.map((stock) => (
+                  <StockCard key={stock.symbol} data={stock} />
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {/* 美股市场分区 - 显示美股指数和个股 */}
+          {(usIndices.length > 0 || usStocks.length > 0) && (
+            <Section
+              title="美股市场"
+              icon="🇺🇸"
+              borderColor="neon-border-blue"
+              indices={usIndices}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {usStocks.map((stock) => (
                   <StockCard key={stock.symbol} data={stock} />
                 ))}
               </div>

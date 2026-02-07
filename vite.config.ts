@@ -66,6 +66,17 @@ export default defineConfig({
             proxyReq.setHeader('Referer', 'https://www.cngold.org/')
           })
         }
+      },
+      // Stooq API 代理（美股指数）
+      '/api/stooq': {
+        target: 'https://stooq.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/stooq/, ''),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+          })
+        }
       }
     }
   }
